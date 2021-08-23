@@ -5,7 +5,7 @@ class FilmCopy(models.Model):
     location = models.CharField(max_length=16)
     copy_id = models.CharField(max_length=64)
     film = models.ForeignKey('Film', on_delete=models.RESTRICT)
-    ean = models.CharField(max_length=16)
+    ean = models.CharField(max_length=16, null=True)
 
     class Meta:
         constraints = [

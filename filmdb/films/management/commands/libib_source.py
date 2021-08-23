@@ -1,9 +1,8 @@
-import requests
-from parsel import Selector
-
 from django.core.management.base import BaseCommand
 
 from films.models import Film, FilmCopy
+from helpers.scraping.libib import LibibScraper
+from typing import Dict, Iterable
 
 
 class Command(BaseCommand):
@@ -12,36 +11,32 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('library_id', type=str)
         parser.add_argument('--section', type=str, default='dvds')
+        parser.add_argument('--skip_details', action='store_true')
 
     def handle(self, *args, **options):
-        library_id = options["library_id"]
+        scraper = LibibScraper()
+        library_id = options['library_id']
         section = options['section']
-        response = requests.post(
-            url=f'https://{library_id}.libib.com/functions/items-list.php',
-            data={
-                "uri": section,
-                "limit": "0",
-                "letter_heading": "0",
-                "group_heading": "",
-                "letter": "all"
-            },
-            headers={
-                'Referer': f'https://{library_id}.libib.com/i/{section}'
-            }
-        )
-        response.raise_for_status()
-        selector = Selector(response.text)
-        films = selector.css('.cover')
-        film_dicts = [self.extract_data(film) for film in films]
-        self.create_films(film_dicts, library_id)
+        skip_details = options['skip_details']
+        page = 0
+        last_page = False
+        while not last_page:
+            film_dicts, last_page = scraper.get_page(
+                library_id=library_id,
+                section=section,
+                page=page,
+                skip_details=skip_details
+            )
+            self.create_films(film_dicts, library_id)
+            print(f"Scraped page {page}")
+            page += 1
 
-    def extract_data(self, film: Selector):
-        return {
-            'title': film.css('.cover-title::text').get(),
-            'id': film.css('::attr(id)').get().split('_')[1]
-        }
-
-    def create_films(self, film_dicts: list[dict], location: str):
+    def create_films(self, film_dicts: Iterable[Dict], location: str):
+        # TODO: Commit once to database
         for film_dict in film_dicts:
-            film = Film.objects.create(title=film_dict["title"])
-            FilmCopy.objects.create(location=location, copy_id=film_dict["id"], film=film, ean="")
+            film = Film.objects.update_or_create(title=film_dict["title"])[0]
+            FilmCopy.objects.update_or_create(
+                location=location,
+                copy_id=film_dict["id"],
+                defaults={'film': film, 'ean': film_dict.get("ean")}
+            )
