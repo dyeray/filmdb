@@ -11,8 +11,8 @@ class FilmAdmin(admin.ModelAdmin):
 
 
 class FilmCopyAdmin(admin.ModelAdmin):
-    ordering = ['location', 'copy_id']
-    search_fields = ['copy_id']
+    ordering = ['title']
+    search_fields = ['title']
 
 
 admin.site.register(Film, FilmAdmin)

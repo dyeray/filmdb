@@ -3,6 +3,7 @@ from typing import List, Dict, Tuple
 import requests
 from parsel import Selector
 
+from helpers.scraping.cleaners import clean_title, extract_year
 
 class LibibListScraper:
 
@@ -31,8 +32,16 @@ class LibibListScraper:
 
     def _extract(self, html: str) -> Tuple[List[Dict], bool]:
         films = Selector(html).css('.cover')
-        film_dicts = [{
-            'title': film.css('.cover-title::text').get(),
-            'id': film.css('::attr(id)').get().split('_')[1]
-        } for film in films]
+        film_dicts = [self._extract_item(film) for film in films]
         return film_dicts, len(film_dicts) != 36
+
+    def _extract_item(self, film: Selector):
+        raw_title = film.css('.cover-title::text').get()
+        return {
+            'raw_title': raw_title,
+            'title': clean_title(raw_title),
+            'year': extract_year(raw_title),
+            'id': film.css('::attr(id)').get().split('_')[1]
+        }
+
+

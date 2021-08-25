@@ -4,6 +4,7 @@ from django.db import models
 class FilmCopy(models.Model):
     location = models.CharField(max_length=16)
     copy_id = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
     film = models.ForeignKey('Film', on_delete=models.RESTRICT)
     ean = models.CharField(max_length=16, null=True)
 
@@ -14,4 +15,4 @@ class FilmCopy(models.Model):
         verbose_name_plural = "Film copies"
 
     def __str__(self):
-        return f"{self.location}-{self.copy_id}"
+        return self.title

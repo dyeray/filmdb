@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -8,6 +10,7 @@ from typing import Dict, Iterable
 
 class Command(BaseCommand):
     help = 'Imports films from Libib'
+    logger = logging.getLogger(__name__)
 
     def add_arguments(self, parser):
         parser.add_argument('library_id', type=str, help='Library to scrape')
@@ -28,15 +31,15 @@ class Command(BaseCommand):
                 skip_details=options['skip_details']
             )
             self.create_films(film_dicts, library_id)
-            print(f"Scraped page {page + 1}")
+            self.logger.info(f"Scraped page {page + 1}")
             page += 1
 
     @transaction.atomic
     def create_films(self, film_dicts: Iterable[Dict], location: str):
         for film_dict in film_dicts:
-            film = Film.objects.update_or_create(title=film_dict["title"])[0]
+            film = Film.objects.update_or_create(title=film_dict['title'], year=film_dict['year'])[0]
             FilmCopy.objects.update_or_create(
                 location=location,
-                copy_id=film_dict["id"],
-                defaults={'film': film, 'ean': film_dict.get("ean")}
+                copy_id=film_dict['id'],
+                defaults={'film': film, 'ean': film_dict.get('ean'), 'title': film_dict['raw_title']}
             )
