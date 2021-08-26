@@ -41,7 +41,8 @@ class LibibListScraper:
             'raw_title': raw_title,
             'title': clean_title(raw_title),
             'year': extract_year(raw_title),
-            'id': film.css('::attr(id)').get().split('_')[1]
+            'id': film.css('::attr(id)').get().split('_')[1],
+            'image_url': film.css('.cover_image::attr(src)').get()
         }
 
 

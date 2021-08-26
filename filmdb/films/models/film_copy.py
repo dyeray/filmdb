@@ -7,6 +7,7 @@ class FilmCopy(models.Model):
     title = models.CharField(max_length=128)
     film = models.ForeignKey('Film', on_delete=models.RESTRICT)
     ean = models.CharField(max_length=16, null=True)
+    image_url = models.URLField(null=True)
 
     class Meta:
         constraints = [

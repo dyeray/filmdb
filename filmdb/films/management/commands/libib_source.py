@@ -41,5 +41,10 @@ class Command(BaseCommand):
             FilmCopy.objects.update_or_create(
                 location=location,
                 copy_id=film_dict['id'],
-                defaults={'film': film, 'ean': film_dict.get('ean'), 'title': film_dict['raw_title']}
+                defaults={
+                    'film': film,
+                    'ean': film_dict.get('ean'),
+                    'title': film_dict['raw_title'],
+                    'image_url': film_dict['image_url']
+                }
             )

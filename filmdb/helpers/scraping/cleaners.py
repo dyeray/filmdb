@@ -1,4 +1,5 @@
 import re
+import string
 from datetime import datetime
 
 regex = r"(\[|\()([^[(]+)(\]|\))"
@@ -17,7 +18,7 @@ def extract_year(title: str):
 
 
 def clean_title(title: str):
-    return re.sub(regex, "", title).strip()
+    return re.sub(regex, "", title).strip(string.whitespace + "-")
 
 
 def to_int(string: str):

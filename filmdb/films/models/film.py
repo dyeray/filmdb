@@ -7,6 +7,7 @@ class Film(models.Model):
     year = models.SmallIntegerField(null=True)
     imdb_rating = models.SmallIntegerField(null=True)
     imdb_votes = models.IntegerField(null=True)
+    imdb_image_url = models.URLField(null=True)
 
     class Meta:
         constraints = [
