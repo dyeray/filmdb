@@ -2,12 +2,12 @@ from django.db import models
 
 
 class Film(models.Model):
-    imdb_id = models.CharField(unique=True, null=True, max_length=16)
+    imdb_id = models.CharField(unique=True, max_length=16)
     title = models.CharField(max_length=128)
-    year = models.SmallIntegerField(null=True)
-    imdb_rating = models.SmallIntegerField(null=True)
-    imdb_votes = models.IntegerField(null=True)
-    imdb_image_url = models.URLField(null=True)
+    year = models.SmallIntegerField()
+    imdb_rating = models.SmallIntegerField()
+    imdb_votes = models.IntegerField()
+    image_url = models.URLField()
 
     class Meta:
         constraints = [

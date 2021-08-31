@@ -2,6 +2,8 @@ import re
 import string
 from datetime import datetime
 
+from helpers import find_first
+
 regex = r"(\[|\()([^[(]+)(\]|\))"
 
 
@@ -13,17 +15,16 @@ def extract_year(title: str):
 
     match_list = [to_int(match[1].strip()) for match in matches]
 
-    years = filter(lambda x: x is not None and min_year <= x <= max_year, match_list)
-    return next(years, None)
+    return find_first(match_list, lambda x: x is not None and min_year <= x <= max_year)
 
 
 def clean_title(title: str):
     return re.sub(regex, "", title).strip(string.whitespace + "-")
 
 
-def to_int(string: str):
+def to_int(string_obj: str):
     try:
-        converted = int(string)
+        converted = int(string_obj)
     except ValueError:
         converted = None
     return converted
