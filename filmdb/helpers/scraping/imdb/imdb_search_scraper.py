@@ -35,4 +35,3 @@ class ImdbSearchScraper:
         if not film_node:
             return None
         return find_first(re.findall(self.regex, film_node.css('.result_text a::attr(href)').get()))
-
