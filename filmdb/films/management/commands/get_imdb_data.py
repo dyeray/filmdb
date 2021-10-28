@@ -24,19 +24,31 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def create_film(self, film_dict: Optional[Dict], copy: FilmCopy):
-        if not film_dict:
+        if film_dict:
+            self.logger.info(f"Adding '{film_dict['title']}'")
+            film, _ = Film.objects.update_or_create(
+                imdb_id=film_dict['imdb_id'],
+                defaults={
+                    'title': film_dict['title'],
+                    'year': film_dict['year'],
+                    'imdb_rating': film_dict['imdb_rating'],
+                    'imdb_votes': film_dict['imdb_votes'],
+                    'image_url': film_dict['image']
+                }
+            )
+            copy.refresh_from_db()
+            copy.film = film
+            copy.save()
+        else:
+            self.logger.info(f"Skipping item '{copy.title}'")
+            film, _ = Film.objects.get_or_create(imdb_id="dummy", defaults={
+                'title': "dummy",
+                'year': 2000,
+                'imdb_rating': None,
+                'imdb_votes': 0,
+                'image_url': None
+            })
+            copy.refresh_from_db()
+            copy.film = film
+            copy.save()
             return
-        self.logger.info(f"Adding '{film_dict['title']}'")
-        film, _ = Film.objects.update_or_create(
-            imdb_id=film_dict['imdb_id'],
-            defaults={
-                'title': film_dict['title'],
-                'year': film_dict['year'],
-                'imdb_rating': film_dict['imdb_rating'],
-                'imdb_votes': film_dict['imdb_votes'],
-                'image_url': film_dict['image']
-            }
-        )
-        copy.refresh_from_db()
-        copy.film = film
-        copy.save()
